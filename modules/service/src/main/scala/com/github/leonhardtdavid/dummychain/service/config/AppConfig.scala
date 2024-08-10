@@ -1,4 +1,4 @@
-package com.github.leonhardtdavid.dummychain.config
+package com.github.leonhardtdavid.dummychain.service.config
 
 import cats.effect.kernel.{ Resource, Sync }
 import AppConfig._

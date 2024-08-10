@@ -1,9 +1,9 @@
-package com.github.leonhardtdavid.dummychain
+package com.github.leonhardtdavid.dummychain.service
 
 import cats.effect._
-import com.github.leonhardtdavid.dummychain.api.Transactions
-import com.github.leonhardtdavid.dummychain.config.AppConfig
-import com.github.leonhardtdavid.dummychain.server.Server
+import com.github.leonhardtdavid.dummychain.service.api.Transactions
+import com.github.leonhardtdavid.dummychain.service.config.AppConfig
+import com.github.leonhardtdavid.dummychain.service.server.Server
 import org.typelevel.log4cats.Logger
 import org.typelevel.log4cats.slf4j.Slf4jLogger
 import sttp.tapir.swagger.bundle.SwaggerInterpreter
@@ -23,7 +23,7 @@ object Main extends IOApp {
     } yield server
 
     serverResource.use { server =>
-      Logger[IO].info(s"Server started at port ${server.address.getPort}. Press ENTER key to exit.") *>
+      Logger[IO].info(s"Server started at port ${server.address.getPort}.") *>
         IO.never
     }
       .as(ExitCode.Success)

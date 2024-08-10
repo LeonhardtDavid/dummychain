@@ -5,11 +5,17 @@ ThisBuild / organization     := "com.github.leonhardtdavid"
 ThisBuild / organizationName := "leonhardtdavid"
 
 lazy val root = (project in file("."))
+  .settings(
+    name := "dummychain"
+  )
+  .aggregate(service)
+
+lazy val service = (project in file("modules/service"))
   .enablePlugins(BuildInfoPlugin)
   .settings(
-    name             := "dummychain",
+    name             := "dummychain-service",
     buildInfoKeys    := Seq[BuildInfoKey](name, version, scalaVersion, sbtVersion),
-    buildInfoPackage := "com.github.leonhardtdavid.dummychain",
+    buildInfoPackage := "com.github.leonhardtdavid.dummychain.service",
     libraryDependencies ++= Seq(
       tapirCore,
       tapirHttp4s,
@@ -22,6 +28,7 @@ lazy val root = (project in file("."))
       refinedCats,
       refinedPureConfig,
       logback,
+      bouncyCastle,
       tapirStubServer % Test,
       scalatest       % Test
     ),

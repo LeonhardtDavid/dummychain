@@ -3,12 +3,13 @@ import sbt._
 object Dependencies {
 
   object V {
-    val tapir      = "1.11.1"
-    val http4s     = "0.23.27"
-    val pureconfig = "0.17.7"
-    val refined    = "0.11.2"
-    val logback    = "1.5.6"
-    val scalatest  = "3.2.19"
+    val tapir        = "1.11.1"
+    val http4s       = "0.23.27"
+    val pureconfig   = "0.17.7"
+    val refined      = "0.11.2"
+    val logback      = "1.5.6"
+    val bouncyCastle = "1.78.1"
+    val scalatest    = "3.2.19"
   }
 
   object Libraries {
@@ -28,6 +29,8 @@ object Dependencies {
     val refinedPureConfig = "eu.timepit" %% "refined-pureconfig" % V.refined
 
     val logback = "ch.qos.logback" % "logback-classic" % V.logback
+
+    val bouncyCastle = "org.bouncycastle" % "bcprov-jdk18on" % V.bouncyCastle
 
     val scalatest = "org.scalatest" %% "scalatest" % V.scalatest
   }

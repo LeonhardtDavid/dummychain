@@ -1,8 +1,8 @@
-package com.github.leonhardtdavid.dummychain.api
+package com.github.leonhardtdavid.dummychain.service.api
 
 import cats.effect.Sync
 import cats.implicits._
-import com.github.leonhardtdavid.dummychain.api.Transactions._
+import Transactions._
 import io.circe.generic.auto._
 import io.circe.syntax._
 import org.typelevel.log4cats.Logger
@@ -31,13 +31,13 @@ class Transactions[F[_]: Sync] {
 
 object Transactions {
 
-  case class Transaction(source: String, destination: String, amount: BigDecimal) // TODO add proper types and missing fields
+  case class TransactionRequest(source: String, destination: String, amount: BigDecimal) // TODO add proper types and missing fields
 
-  private val postTransaction: Endpoint[Unit, Transaction, Unit, Unit, Any] =
+  private val postTransaction: Endpoint[Unit, TransactionRequest, Unit, Unit, Any] =
     endpoint.post
       .in("api" / "transactions")
       .in(
-        jsonBody[Transaction]
+        jsonBody[TransactionRequest]
 //          .description() // TODO add doc
 //          .examples()
       )
