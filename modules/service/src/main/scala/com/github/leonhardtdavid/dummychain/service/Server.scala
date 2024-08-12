@@ -1,11 +1,10 @@
-package com.github.leonhardtdavid.dummychain.service.server
+package com.github.leonhardtdavid.dummychain.service
 
-import cats.effect.{ Async, Resource }
+import cats.effect.{Async, Resource}
 import com.comcast.ip4s._
-import com.github.leonhardtdavid.dummychain.service.config.ServerConfig
 import fs2.io.net.Network
 import org.http4s.ember.server.EmberServerBuilder
-import org.http4s.server.{ Router, Server }
+import org.http4s.server.{Router, Server}
 import sttp.tapir.server.ServerEndpoint
 import sttp.tapir.server.http4s.Http4sServerInterpreter
 

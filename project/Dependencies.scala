@@ -5,6 +5,8 @@ object Dependencies {
   object V {
     val tapir        = "1.11.1"
     val http4s       = "0.23.27"
+    val circe        = "0.14.9"
+    val catsEffect   = "3.5.4"
     val pureconfig   = "0.17.7"
     val refined      = "0.11.2"
     val logback      = "1.5.6"
@@ -21,6 +23,10 @@ object Dependencies {
     val tapirStubServer = "com.softwaremill.sttp.tapir" %% "tapir-sttp-stub-server"  % V.tapir
 
     val http4sServer = "org.http4s" %% "http4s-ember-server" % V.http4s
+
+    val circeRefined = "io.circe" %% "circe-refined" % V.circe
+
+    val catsEffect = "org.typelevel" %% "cats-effect" % V.catsEffect
 
     val pureconfig = "com.github.pureconfig" %% "pureconfig" % V.pureconfig
 

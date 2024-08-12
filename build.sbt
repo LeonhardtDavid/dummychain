@@ -8,7 +8,26 @@ lazy val root = (project in file("."))
   .settings(
     name := "dummychain"
   )
-  .aggregate(service)
+  .aggregate(shared, helpers, service)
+
+lazy val shared = (project in file("modules/shared"))
+  .settings(
+    name := "dummychain-shared",
+    libraryDependencies ++= Seq(
+      bouncyCastle,
+      catsEffect
+    )
+  )
+
+lazy val helpers = (project in file("modules/helpers"))
+  .settings(
+    name := "dummychain-helpers",
+    libraryDependencies ++= Seq(
+      catsEffect
+    ),
+    Compile / run / fork := true
+  )
+  .dependsOn(shared)
 
 lazy val service = (project in file("modules/service"))
   .enablePlugins(BuildInfoPlugin)
@@ -23,14 +42,15 @@ lazy val service = (project in file("modules/service"))
       tapirRefined,
       tapirSwaggerUI,
       http4sServer,
+      circeRefined,
       pureconfig,
       refinedCore,
       refinedCats,
       refinedPureConfig,
       logback,
-      bouncyCastle,
       tapirStubServer % Test,
       scalatest       % Test
     ),
     Compile / run / fork := true
   )
+  .dependsOn(shared)
