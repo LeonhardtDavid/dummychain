@@ -5,11 +5,14 @@ import eu.timepit.refined.api._
 import eu.timepit.refined.collection._
 import eu.timepit.refined.numeric._
 
+import java.time.Instant
+
 case class Transaction(
   source: SourceAddress,
   destination: DestinationAddress,
   amount: Amount,
-  signature: TransactionSignature
+  signature: TransactionSignature,
+  timestamp: Instant
 )
 
 object Transaction {

@@ -2,6 +2,7 @@ package com.github.leonhardtdavid.dummychain.service
 
 import cats.effect._
 import com.github.leonhardtdavid.dummychain.service.api.Transactions
+import com.github.leonhardtdavid.dummychain.service.store.{ BlockchainStore, TransactionValidator }
 import com.github.leonhardtdavid.dummychain.shared.{ BlockHashGenerator, KeyPairGenerator, TransactionSigner }
 import org.typelevel.log4cats.Logger
 import org.typelevel.log4cats.slf4j.Slf4jLogger
@@ -23,7 +24,8 @@ object Main extends IOApp {
         BigDecimal("10000"),
         keyPair.privateKey
       )(signer, hashGenerator)
-      transactions = new Transactions[IO](store)
+      validator <- TransactionValidator.resource[IO](signer, store)
+      transactions = new Transactions[IO](store, validator)
       apiEndpoints = transactions.routes
       docEndpoints = SwaggerInterpreter().fromServerEndpoints[IO](transactions.routes, BuildInfo.name, BuildInfo.version)
       server <- Server.resource[IO](apiEndpoints ++ docEndpoints, config.server)

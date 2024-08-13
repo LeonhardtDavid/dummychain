@@ -1,6 +1,6 @@
 package com.github.leonhardtdavid.dummychain.service.model
 
-import cats.data.NonEmptyChain
+import cats.data.NonEmptyList
 import com.github.leonhardtdavid.dummychain.service.model.Block.{ BlockHash, Nonce, Sequence }
 import eu.timepit.refined.api._
 import eu.timepit.refined.numeric._
@@ -8,7 +8,7 @@ import eu.timepit.refined.string._
 
 case class Block(
   sequence: Sequence,
-  transactions: NonEmptyChain[Transaction],
+  transactions: NonEmptyList[Transaction],
   nonce: Nonce,
   hash: BlockHash,
   previousBlock: Option[BlockHash] = None

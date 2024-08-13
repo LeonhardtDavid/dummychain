@@ -6,15 +6,17 @@ import com.github.leonhardtdavid.dummychain.shared.BlockHashGenerator.GeneratedH
 
 import java.nio.charset.StandardCharsets
 import java.security.MessageDigest
+import java.time.Instant
 
 class BlockHashGenerator[F[_]: Sync](numberOfZeros: Int) {
 
-  def generate(sequence: Long, transactionsHash: List[String], previousHash: Option[String]): F[GeneratedHash] = {
+  def generate(sequence: Long, transactionsHashAndTimestamp: List[(String, Instant)], previousHash: Option[String]): F[GeneratedHash] = {
     def hash(nonce: Long) = Sync[F].delay {
+      val transactionsInfo = transactionsHashAndTimestamp.map { case (a, b) => s"$a$b" }.mkString
       val hs = MessageDigest
         .getInstance("SHA-256")
         .digest(
-          s"$sequence$nonce${transactionsHash.mkString}${previousHash.getOrElse("")}"
+          s"$sequence$nonce$transactionsInfo${previousHash.getOrElse("")}"
             .getBytes(StandardCharsets.UTF_8)
         )
 
