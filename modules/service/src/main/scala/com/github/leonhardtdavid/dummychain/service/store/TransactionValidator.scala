@@ -25,17 +25,17 @@ class TransactionValidator[F[_]: Sync](signer: TransactionSigner[F], store: Bloc
         case _                      => ().validNel
       }
 
-  private def validateSufficientFonds(transaction: Transaction): F[ValidatedNel[TransactionValidationError, Unit]] =
-    store.hasSufficientFonds(transaction).map { result =>
+  private def validateSufficientFunds(transaction: Transaction): F[ValidatedNel[TransactionValidationError, Unit]] =
+    store.hasSufficientFunds(transaction).map { result =>
       if (result) ().validNel
-      else InsufficientFonds.invalidNel
+      else InsufficientFunds.invalidNel
     }
 
   def validate(transaction: Transaction): F[EitherNel[TransactionValidationError, Unit]] =
     for {
       v1 <- validateTransactionSign(transaction)
-      v2 <- validateSufficientFonds(transaction)
-    } yield (v1 |+| v2).toEither // TODO doesn't make sense to check fonds if the signature is invalid
+      v2 <- validateSufficientFunds(transaction)
+    } yield (v1 |+| v2).toEither // TODO doesn't make sense to check funds if the signature is invalid
 
 }
 
@@ -43,7 +43,7 @@ object TransactionValidator {
 
   sealed trait TransactionValidationError
   case object InvalidSign       extends TransactionValidationError
-  case object InsufficientFonds extends TransactionValidationError
+  case object InsufficientFunds extends TransactionValidationError
 
   def resource[F[_]: Sync](signer: TransactionSigner[F], store: BlockchainStore[F]): Resource[F, TransactionValidator[F]] =
     Resource.pure(new TransactionValidator[F](signer, store))

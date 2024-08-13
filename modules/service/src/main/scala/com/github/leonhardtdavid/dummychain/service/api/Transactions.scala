@@ -8,7 +8,7 @@ import com.github.leonhardtdavid.dummychain.service.model.Transaction
 import com.github.leonhardtdavid.dummychain.service.model.Transaction.{ Amount, DestinationAddress, SourceAddress, TransactionSignature }
 import com.github.leonhardtdavid.dummychain.service.store.BlockchainStore.StoreError
 import com.github.leonhardtdavid.dummychain.service.store.{ BlockchainStore, TransactionValidator }
-import com.github.leonhardtdavid.dummychain.service.store.TransactionValidator.{ InsufficientFonds, InvalidSign }
+import com.github.leonhardtdavid.dummychain.service.store.TransactionValidator.{ InsufficientFunds, InvalidSign }
 import io.circe.refined._
 import io.circe.generic.auto._
 import io.circe.syntax._
@@ -27,15 +27,15 @@ class Transactions[F[_]: Sync](store: BlockchainStore[F], validator: Transaction
 
   private implicit val logger: Logger[F] = Slf4jLogger.getLogger[F]
 
-  private val createTransaction = postTransaction.serverLogic[F] { request =>
+  private[api] val createTransaction = postTransaction.serverLogic[F] { request =>
     def validateTransaction(transaction: Transaction): F[Either[TransactionError, Unit]] =
       validator.validate(transaction).map {
         case Right(_) => ().asRight
         case Left(errors) =>
           ValidationErrorsResponse(
             errors = errors.map {
-              case InvalidSign       => ValidationErrorResponse("Invalid signature")
-              case InsufficientFonds => ValidationErrorResponse("Insufficient Fonds")
+              case InvalidSign       => ValidationErrorResponse("Invalid Signature")
+              case InsufficientFunds => ValidationErrorResponse("Insufficient Funds")
             }
           ).asLeft
       }

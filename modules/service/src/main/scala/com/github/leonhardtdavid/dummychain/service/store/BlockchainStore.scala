@@ -76,7 +76,7 @@ class BlockchainStore[F[_]: Sync](maxTransactionsPerBlock: Int)(store: Ref[F, Bl
     eitherT.value
   }
 
-  def hasSufficientFonds(transaction: Transaction): F[Boolean] = {
+  def hasSufficientFunds(transaction: Transaction): F[Boolean] = {
     @tailrec
     def validate(blocks: List[Block], acc: BigDecimal): Boolean =
       blocks match {
