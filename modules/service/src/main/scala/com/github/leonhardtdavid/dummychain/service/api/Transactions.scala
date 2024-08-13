@@ -17,6 +17,7 @@ import org.typelevel.log4cats.slf4j.Slf4jLogger
 import sttp.model.StatusCode
 import sttp.tapir._
 import sttp.tapir.generic.auto._
+import sttp.tapir.integ.cats.codec._
 import sttp.tapir.json.circe._
 import sttp.tapir.server.ServerEndpoint
 
