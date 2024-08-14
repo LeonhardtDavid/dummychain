@@ -12,6 +12,7 @@ object Dependencies {
     val logback      = "1.5.6"
     val bouncyCastle = "1.78.1"
     val scalatest    = "3.2.19"
+    val scalamock    = "6.0.0"
   }
 
   object Libraries {
@@ -23,6 +24,7 @@ object Dependencies {
     val tapirStubServer = "com.softwaremill.sttp.tapir" %% "tapir-sttp-stub-server"  % V.tapir
 
     val http4sServer = "org.http4s" %% "http4s-ember-server" % V.http4s
+    val http4sCirce  = "org.http4s" %% "http4s-circe"        % V.http4s
 
     val circeRefined = "io.circe" %% "circe-refined" % V.circe
 
@@ -39,6 +41,8 @@ object Dependencies {
     val bouncyCastle = "org.bouncycastle" % "bcprov-jdk18on" % V.bouncyCastle
 
     val scalatest = "org.scalatest" %% "scalatest" % V.scalatest
+
+    val scalamock = "org.scalamock" %% "scalamock" % V.scalamock
   }
 
 }

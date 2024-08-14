@@ -1,4 +1,5 @@
-import Dependencies.Libraries._
+import Dependencies.Libraries.*
+import org.typelevel.scalacoptions.ScalacOptions
 
 ThisBuild / scalaVersion     := "2.13.14"
 ThisBuild / organization     := "com.github.leonhardtdavid"
@@ -49,8 +50,11 @@ lazy val service = (project in file("modules/service"))
       refinedPureConfig,
       logback,
       tapirStubServer % Test,
-      scalatest       % Test
+      http4sCirce     % Test,
+      scalatest       % Test,
+      scalamock       % Test
     ),
-    Compile / run / fork := true
+    Compile / run / fork := true,
+    Test / tpolecatExcludeOptions += ScalacOptions.warnNonUnitStatement
   )
   .dependsOn(shared)

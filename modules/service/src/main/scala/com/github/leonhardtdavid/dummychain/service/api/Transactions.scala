@@ -2,7 +2,7 @@ package com.github.leonhardtdavid.dummychain.service.api
 
 import cats.effect.Sync
 import cats.implicits._
-import cats.data.{ EitherT, NonEmptyList }
+import cats.data.EitherT
 import com.github.leonhardtdavid.dummychain.service.api.Transactions._
 import com.github.leonhardtdavid.dummychain.service.model.Transaction
 import com.github.leonhardtdavid.dummychain.service.model.Transaction.{ Amount, DestinationAddress, SourceAddress, TransactionSignature }
@@ -17,7 +17,6 @@ import org.typelevel.log4cats.slf4j.Slf4jLogger
 import sttp.model.StatusCode
 import sttp.tapir._
 import sttp.tapir.generic.auto._
-import sttp.tapir.integ.cats.codec._
 import sttp.tapir.json.circe._
 import sttp.tapir.server.ServerEndpoint
 
@@ -35,8 +34,8 @@ class Transactions[F[_]: Sync](store: BlockchainStore[F], validator: Transaction
           ValidationErrorsResponse(
             errors = errors.map {
               case InvalidSign       => ValidationErrorResponse("Invalid Signature")
-              case InsufficientFunds => ValidationErrorResponse("Insufficient Funds")
-            }
+              case InsufficientFunds => ValidationErrorResponse("Insufficient Funds") // TODO Maybe it'd be better to return 402
+            }.toList
           ).asLeft
       }
 
@@ -82,8 +81,8 @@ object Transactions {
   case class ValidationErrorResponse(message: String)
 
   sealed trait TransactionError
-  case class ValidationErrorsResponse(errors: NonEmptyList[ValidationErrorResponse]) extends TransactionError
-  case class UnexpectedErrorResponse(message: String)                                extends TransactionError
+  case class ValidationErrorsResponse(errors: List[ValidationErrorResponse]) extends TransactionError
+  case class UnexpectedErrorResponse(message: String)                        extends TransactionError
 
   case class TransactionRequest(
     source: SourceAddress,

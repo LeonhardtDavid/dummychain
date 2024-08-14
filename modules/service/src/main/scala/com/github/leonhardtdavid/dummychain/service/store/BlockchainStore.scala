@@ -15,7 +15,14 @@ import com.github.leonhardtdavid.dummychain.shared.{ BlockHashGenerator, Transac
 import java.time.Instant
 import scala.annotation.tailrec
 
-class BlockchainStore[F[_]: Sync](maxTransactionsPerBlock: Int)(store: Ref[F, Blockchain], generator: BlockHashGenerator[F]) {
+trait BlockchainStore[F[_]] {
+  def addTransaction(transaction: Transaction): F[Either[StoreError, Unit]]
+  def hasSufficientFunds(transaction: Transaction): F[Boolean]
+}
+
+// TODO Maybe try to use cats.effect.std.Semaphore or cats.effect.std.Mutex to have concurrent updates
+class BlockchainStoreImpl[F[_]: Sync](maxTransactionsPerBlock: Int)(store: Ref[F, Blockchain], generator: BlockHashGenerator[F])
+    extends BlockchainStore[F] {
 
   private def updateBlockchain(
     f: GeneratedHash => Blockchain
@@ -66,7 +73,7 @@ class BlockchainStore[F[_]: Sync](maxTransactionsPerBlock: Int)(store: Ref[F, Bl
     }
   }
 
-  def addTransaction(transaction: Transaction): F[Either[StoreError, Unit]] = {
+  override def addTransaction(transaction: Transaction): F[Either[StoreError, Unit]] = {
     val eitherT = for {
       blockchain <- EitherT.right[StoreError](store.get)
       updated    <- EitherT(add(transaction, blockchain))
@@ -76,7 +83,7 @@ class BlockchainStore[F[_]: Sync](maxTransactionsPerBlock: Int)(store: Ref[F, Bl
     eitherT.value
   }
 
-  def hasSufficientFunds(transaction: Transaction): F[Boolean] = {
+  override def hasSufficientFunds(transaction: Transaction): F[Boolean] = {
     @tailrec
     def validate(blocks: List[Block], acc: BigDecimal): Boolean =
       blocks match {
@@ -120,7 +127,7 @@ object BlockchainStore {
           BlockHash.unsafeFrom(generated.hash)
         )
         ref <- Ref.of[F, Blockchain](blockchain)
-      } yield new BlockchainStore[F](maxTransactionsPerBlock)(ref, generator)
+      } yield new BlockchainStoreImpl[F](maxTransactionsPerBlock)(ref, generator)
     }
 
 }

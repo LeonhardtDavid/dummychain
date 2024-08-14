@@ -8,7 +8,11 @@ import com.github.leonhardtdavid.dummychain.service.model.Transaction
 import com.github.leonhardtdavid.dummychain.service.store.TransactionValidator._
 import com.github.leonhardtdavid.dummychain.shared.TransactionSigner
 
-class TransactionValidator[F[_]: Sync](signer: TransactionSigner[F], store: BlockchainStore[F]) {
+trait TransactionValidator[F[_]] {
+  def validate(transaction: Transaction): F[EitherNel[TransactionValidationError, Unit]]
+}
+
+class TransactionValidatorImpl[F[_]: Sync](signer: TransactionSigner[F], store: BlockchainStore[F]) extends TransactionValidator[F] {
 
   private def validateTransactionSign(transaction: Transaction): F[ValidatedNel[TransactionValidationError, Unit]] =
     signer
@@ -31,11 +35,11 @@ class TransactionValidator[F[_]: Sync](signer: TransactionSigner[F], store: Bloc
       else InsufficientFunds.invalidNel
     }
 
-  def validate(transaction: Transaction): F[EitherNel[TransactionValidationError, Unit]] =
+  override def validate(transaction: Transaction): F[EitherNel[TransactionValidationError, Unit]] =
     for {
       v1 <- validateTransactionSign(transaction)
       v2 <- validateSufficientFunds(transaction)
-    } yield (v1 |+| v2).toEither // TODO doesn't make sense to check funds if the signature is invalid
+    } yield (v1 |+| v2).toEither // TODO it doesn't make sense to check funds if the signature is invalid
 
 }
 
@@ -46,6 +50,6 @@ object TransactionValidator {
   case object InsufficientFunds extends TransactionValidationError
 
   def resource[F[_]: Sync](signer: TransactionSigner[F], store: BlockchainStore[F]): Resource[F, TransactionValidator[F]] =
-    Resource.pure(new TransactionValidator[F](signer, store))
+    Resource.pure(new TransactionValidatorImpl[F](signer, store))
 
 }
