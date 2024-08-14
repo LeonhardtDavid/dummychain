@@ -50,8 +50,10 @@ class TransactionsIntegrationSpec extends AnyWordSpec with Matchers with MockFac
       } yield (result.status, response)
 
       val (status, response) = result.unsafeRunSync()
+
       status shouldBe Status.BadRequest
-      response.errors shouldBe List(ValidationErrorResponse("Invalid Signature"))
+      response.errors.head shouldBe ValidationErrorResponse("Invalid Signature")
+      response.errors.tail shouldBe Nil
     }
 
     "fail on insufficient funds" in {
@@ -83,8 +85,10 @@ class TransactionsIntegrationSpec extends AnyWordSpec with Matchers with MockFac
       } yield (result.status, response)
 
       val (status, response) = result.unsafeRunSync()
+
       status shouldBe Status.BadRequest
-      response.errors shouldBe List(ValidationErrorResponse("Insufficient Funds"))
+      response.errors.head shouldBe ValidationErrorResponse("Insufficient Funds")
+      response.errors.tail shouldBe Nil
     }
 
     "fail on same source and destination" in {
@@ -116,8 +120,10 @@ class TransactionsIntegrationSpec extends AnyWordSpec with Matchers with MockFac
       } yield (result.status, response)
 
       val (status, response) = result.unsafeRunSync()
+
       status shouldBe Status.BadRequest
-      response.errors shouldBe List(ValidationErrorResponse("The destination can't be the same as the source"))
+      response.errors.head shouldBe ValidationErrorResponse("The destination can't be the same as the source")
+      response.errors.tail shouldBe Nil
     }
 
     "fail on unexpected errors" in {

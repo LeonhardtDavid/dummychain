@@ -29,6 +29,7 @@ lazy val helpers = (project in file("modules/helpers"))
     Compile / run / fork := true
   )
   .dependsOn(shared)
+  .aggregate(shared)
 
 lazy val service = (project in file("modules/service"))
   .enablePlugins(BuildInfoPlugin)
@@ -58,3 +59,4 @@ lazy val service = (project in file("modules/service"))
     Test / tpolecatExcludeOptions += ScalacOptions.warnNonUnitStatement
   )
   .dependsOn(shared)
+  .aggregate(shared)
