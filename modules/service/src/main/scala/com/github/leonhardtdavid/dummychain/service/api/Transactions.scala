@@ -8,7 +8,7 @@ import com.github.leonhardtdavid.dummychain.service.model.Transaction
 import com.github.leonhardtdavid.dummychain.service.model.Transaction.{ Amount, DestinationAddress, SourceAddress, TransactionSignature }
 import com.github.leonhardtdavid.dummychain.service.store.BlockchainStore.StoreError
 import com.github.leonhardtdavid.dummychain.service.store.{ BlockchainStore, TransactionValidator }
-import com.github.leonhardtdavid.dummychain.service.store.TransactionValidator.{ InsufficientFunds, InvalidSign }
+import com.github.leonhardtdavid.dummychain.service.store.TransactionValidator.{ InsufficientFunds, InvalidDestination, InvalidSign }
 import io.circe.refined._
 import io.circe.generic.auto._
 import io.circe.syntax._
@@ -33,8 +33,9 @@ class Transactions[F[_]: Sync](store: BlockchainStore[F], validator: Transaction
         case Left(errors) =>
           ValidationErrorsResponse(
             errors = errors.map {
-              case InvalidSign       => ValidationErrorResponse("Invalid Signature")
-              case InsufficientFunds => ValidationErrorResponse("Insufficient Funds") // TODO Maybe it'd be better to return 402
+              case InvalidDestination(message) => ValidationErrorResponse(message)
+              case InvalidSign                 => ValidationErrorResponse("Invalid Signature")
+              case InsufficientFunds           => ValidationErrorResponse("Insufficient Funds") // TODO Maybe it'd be better to return 402
             }.toList
           ).asLeft
       }

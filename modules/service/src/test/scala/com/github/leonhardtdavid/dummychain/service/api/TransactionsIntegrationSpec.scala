@@ -45,7 +45,6 @@ class TransactionsIntegrationSpec extends AnyWordSpec with Matchers with MockFac
       )
 
       val result = for {
-        _        <- IO.unit
         result   <- service.run(request)
         response <- result.decodeJson[ValidationErrorsResponse]
       } yield (result.status, response)
@@ -78,7 +77,6 @@ class TransactionsIntegrationSpec extends AnyWordSpec with Matchers with MockFac
         )
 
       val result = for {
-        _         <- IO.unit
         signature <- signer.sign(keyPairSource.publicKey, keyPairDestination.publicKey, amount.value, keyPairSource.privateKey)
         result    <- service.run(request(signature))
         response  <- result.decodeJson[ValidationErrorsResponse]
@@ -87,6 +85,39 @@ class TransactionsIntegrationSpec extends AnyWordSpec with Matchers with MockFac
       val (status, response) = result.unsafeRunSync()
       status shouldBe Status.BadRequest
       response.errors shouldBe List(ValidationErrorResponse("Insufficient Funds"))
+    }
+
+    "fail on same source and destination" in {
+      val (keyPairSource, _, store, validator, signer) = resource.use(IO.pure).unsafeRunSync()
+
+      val source      = SourceAddress.unsafeFrom(keyPairSource.publicKey)
+      val destination = SourceAddress.unsafeFrom(keyPairSource.publicKey)
+      val amount      = Amount.unsafeFrom(10)
+
+      val api     = new Transactions[IO](store, validator)
+      val service = Router("/" -> Http4sServerInterpreter[IO]().toRoutes(api.createTransaction)).orNotFound
+      val request = (signature: String) =>
+        Request[IO](
+          method = Method.POST,
+          uri = uri"/api/transactions"
+        ).withEntity(
+          TransactionRequest(
+            source = source,
+            destination = destination,
+            amount = amount,
+            signature = TransactionSignature.unsafeFrom(signature)
+          ).asJson
+        )
+
+      val result = for {
+        signature <- signer.sign(keyPairSource.publicKey, keyPairSource.publicKey, amount.value, keyPairSource.privateKey)
+        result    <- service.run(request(signature))
+        response  <- result.decodeJson[ValidationErrorsResponse]
+      } yield (result.status, response)
+
+      val (status, response) = result.unsafeRunSync()
+      status shouldBe Status.BadRequest
+      response.errors shouldBe List(ValidationErrorResponse("The destination can't be the same as the source"))
     }
 
     "fail on unexpected errors" in {
@@ -116,7 +147,6 @@ class TransactionsIntegrationSpec extends AnyWordSpec with Matchers with MockFac
       )
 
       val result = for {
-        _        <- IO.unit
         result   <- service.run(request)
         response <- result.decodeJson[UnexpectedErrorResponse]
       } yield (result.status, response)
@@ -151,7 +181,6 @@ class TransactionsIntegrationSpec extends AnyWordSpec with Matchers with MockFac
         )
 
       val result = for {
-        _         <- IO.unit
         signature <- signer.sign(keyPairSource.publicKey, keyPairDestination.publicKey, amount.value, keyPairSource.privateKey)
         result    <- service.run(request(signature))
         response  <- result.decodeJson[TransactionResponse]
